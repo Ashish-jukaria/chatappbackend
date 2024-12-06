@@ -8,7 +8,6 @@ import { generateroomId } from "./utils";
 import cors from 'cors'
 import http from 'http';
 const app = express();
-const PORT = 3000;
 const server = http.createServer(app);
 import dotenv from 'dotenv'
 dotenv.config()
@@ -16,6 +15,8 @@ if (process.env.MONGO_KEY){
   mongoose.connect(process.env.MONGO_KEY);
 
 }
+const PORT = process.env.PORT;
+
 app.use(express.json());
 app.use(cors())
 
