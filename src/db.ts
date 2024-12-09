@@ -13,6 +13,7 @@ const Rooms=new Schema({
     roomId:{type:String,unique:true},
     owner:String,
     users:[],
+    private:{type:Boolean,default:false},
     chats:[
         {
             

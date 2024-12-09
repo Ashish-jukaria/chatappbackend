@@ -15,7 +15,7 @@ if (process.env.MONGO_KEY){
   mongoose.connect(process.env.MONGO_KEY);
 
 }
-const PORT = process.env.PORT;
+const PORT = process.env.PORT||3000;
 
 app.use(express.json());
 app.use(cors())
@@ -75,6 +75,7 @@ app.get("/userdata", Auth, (req: CustomRequest, res: Response) => {
 
 app.post("/createroom", Auth, async (req: CustomRequest, res: Response) => {
   try {
+    const roomtype=req.body.private
     const roomName = req.body.roomName;
     const user = req.username;
     const owner = user;
@@ -85,6 +86,7 @@ app.post("/createroom", Auth, async (req: CustomRequest, res: Response) => {
       roomId: roomID,
       owner: owner,
       users: [owner],
+      private:roomtype
     });
     res.status(200).send(roomID);
   } catch (e) {
@@ -139,13 +141,30 @@ app.get("/roomdata/:roomId", Auth, async (req: CustomRequest, res: Response) => 
 
 app.get("/available", Auth, async (req: CustomRequest, res: Response) => {
   try {
-    const allroom = await RoomsModel.find();
+    const allroom = await RoomsModel.find({private:false});
     res.status(200).send(allroom);
   } catch (e) {
     console.log(e)
     res.status(400).send("error");
   }
 });
+
+app.get("/myroom",Auth,async(req:CustomRequest,res:Response)=>{
+  try{
+    const user =req.username
+    const myroom=await RoomsModel.find({owner:user})
+    if (myroom){
+      res.status(200).send(myroom)
+    }
+    else{
+      res.status(400).send('no Room')
+    }
+  }
+  catch(e){
+    res.status(400).send('error')
+
+  }
+})
 
 
 const ws = new WebSocketServer({server});
@@ -216,5 +235,5 @@ ws.on("connection", (socket) => {
 });
 
 server.listen(PORT, () => {
-  console.log("server running");
+  console.log(`server running ${PORT}`);
 });
